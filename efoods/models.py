@@ -10,6 +10,7 @@ class User(db.Model, UserMixin):
     user_name = db.Column(db.String(20), unique=False, nullable=False)
     user_email = db.Column(db.String(120), unique=True, nullable=False)
     password = db.Column(db.String(60), nullable=False)
+    active = db.Column('is_active', db.Boolean(), nullable=False, server_default='0')
     role = db.relationship('Role', backref='admin', lazy='dynamic')
     order = db.relationship('Order', backref='user', lazy='dynamic')
 

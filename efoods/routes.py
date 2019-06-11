@@ -12,17 +12,21 @@ email_manager = EmailManager(app)
 
 
 @app.route('/')
-@app.route('/index') 
-def index():
-    return render_template('index.html')
-
-
-@app.route('/student_register', methods=['GET', 'POST'])
-def student_register():
-    form = StudentRegistrationForm()
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    form = UserRegistrationForm()
     if form.validate_on_submit():
-        student_hashed_password = bcrypt.generate_password_hash(form.student_password.data).decode('utf-8')
-        student = User(user_name=form.student_name.data, user_email=form.student_email.data, user_password=student_hashed_password)
+        hashed_password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
+        
+        if not User.query.filter(User.user_email=='lewis.kimtai@gmail.com').first():
+            user1 = User(user_name='Lewis', user_email='lewis.kimtai.com', active=True, password=
+        user1.roles.append(Role(name='secret'))
+        user1.roles.append(Role(name='agent'))
+        db.session.add(user1)
+        db.session.commit()
+
+
+        user = User(name=form.name.data, email='lewis.kimtai@gmail.com', password=hashed_password)
         student.role.append(Role(role='student'))
         db.session.add(student)
         db.session.commit()
