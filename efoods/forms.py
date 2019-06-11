@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, SubmitField, SelectField, BooleanField
+from wtforms import StringField, PasswordField, SubmitField, SelectField, BooleanField, IntegerField
 from wtforms.validators import Required, Email, EqualTo, Length, ValidationError
 from efoods.models import User, Restaurant
 

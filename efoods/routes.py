@@ -5,10 +5,9 @@ from efoods import app, db, bcrypt
 from efoods.forms import UserRegistrationForm, LoginForm, RestaurantRegistrationForm, FoodRegistrationForm
 from efoods.models import User, Restaurant, Food, Orders, Admin, Role
 from flask_login import login_user, current_user, logout_user, login_required
-from flask_user import roles_required, UserManager, EmailManager
+from flask_user import roles_required
+from flask_mail import Message
 
-user_manager = UserManager(app, db, Role)
-email_manager = EmailManager(app)
 
 
 @app.route('/')
@@ -25,11 +24,11 @@ def register():
             db.session.add(user1)
             db.session.commit()
         else:
-        user = User(user_name=form.user_name.data, user_email=form.user_email.data, password=hashed_password)
-        user.role.append(Role(role='customer'))
-        db.session.add(user)
-        db.session.commit()
-        flash('Your account has been created! You are now able to log in', 'success')
+            user = User(user_name=form.user_name.data, user_email=form.user_email.data, password=hashed_password)
+            user.role.append(Role(role='customer'))
+            db.session.add(user)
+            db.session.commit()
+            flash('Your account has been created! You are now able to log in', 'success')
         return redirect(url_for('login'))
     return render_template('register.html', title='Registration', form=form)
 

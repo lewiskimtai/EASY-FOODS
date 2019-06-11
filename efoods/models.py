@@ -19,8 +19,8 @@ class User(db.Model, UserMixin):
 class Restaurant(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
     rest_name = db.Column(db.String(20), unique=False, nullable=False)
-    tel_number = db.Column(db.Integer(10), unique=True, nullable=False)
-    food_id = db.Column(db.Integer(10), db.ForeignKey('food.id'))
+    tel_number = db.Column(db.Integer, unique=True, nullable=False)
+    food_id = db.Column(db.Integer, db.ForeignKey('food.id'))
     admin = db.relationship('Admin', backref='restaurant', lazy='dynamic')
 
     def __repr__(self):
@@ -29,7 +29,7 @@ class Restaurant(db.Model, UserMixin):
 class Food(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
     food_name = db.Column(db.String(20), unique=False, nullable=False)
-    price = db.Column(db.Integer(120), unique=True, nullable=False)
+    price = db.Column(db.Integer, unique=True, nullable=False)
     restaurant = db.relationship('Restaurant', backref='food', lazy='dynamic')
 
     def __repr__(self):
@@ -37,7 +37,7 @@ class Food(db.Model, UserMixin):
 
 class Orders(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer(20), db.ForeignKey('user.id'))
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
 
     def __repr__(self):
         return f"User('{self.name}', '{self.email}')"
@@ -51,9 +51,9 @@ class Role(db.Model, UserMixin):
 
 class Admin(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
-    role_id = db.Column(db.Integer(20), db.ForeignKey('role.id'))
-    user_id = db.Column(db.Integer(20), db.ForeignKey('user.id'))
-    restaurant_id = db.Column(db.Integer(20), db.ForeignKey('restaurant.id'))
+    role_id = db.Column(db.Integer, db.ForeignKey('role.id'))
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    restaurant_id = db.Column(db.Integer, db.ForeignKey('restaurant.id'))
     user = db.relationship('User', backref='admin', lazy='dynamic')
     role = db.relationship('Role', backref='admin', lazy='dynamic')
     
