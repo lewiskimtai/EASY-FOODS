@@ -14,65 +14,39 @@ email_manager = EmailManager(app)
 @app.route('/')
 @app.route('/register', methods=['GET', 'POST'])
 def register():
+    if current_user.is_authenticated:
+        return redirect(url_for('home'))
     form = UserRegistrationForm()
     if form.validate_on_submit():
         hashed_password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
-        
         if not User.query.filter(User.user_email=='lewis.kimtai@gmail.com').first():
-            user1 = User(user_name='Lewis', user_email='lewis.kimtai.com', active=True, password=
-        user1.roles.append(Role(name='secret'))
-        user1.roles.append(Role(name='agent'))
-        db.session.add(user1)
-        db.session.commit()
-
-
-        user = User(name=form.name.data, email='lewis.kimtai@gmail.com', password=hashed_password)
-        student.role.append(Role(role='student'))
-        db.session.add(student)
+            user1 = User(user_name='Lewis', user_email='lewis.kimtai.com', password=hashed_password)
+            user1.roles.append(Role(role_name='admin'))
+            db.session.add(user1)
+            db.session.commit()
+        else:
+        user = User(user_name=form.user_name.data, user_email=form.user_email.data, password=hashed_password)
+        user.role.append(Role(role='customer'))
+        db.session.add(user)
         db.session.commit()
         flash('Your account has been created! You are now able to log in', 'success')
         return redirect(url_for('login'))
-    return render_template('student_register.html', title='Student Registration', form=form)
+    return render_template('register.html', title='Registration', form=form)
 
 @app.route('/login', methods=['GET', 'POST']) 
 def login():
+    if current_user.is_authenticated:
+        return redirect(url_for('home'))
     form = LoginForm()
     if form.validate_on_submit():
         user = User.query.filter_by(user_email=form.user_email.data).first()
-        if user and bcrypt.check_password_hash(user.user_password, form.user_password.data):
+        if user and bcrypt.check_password_hash(user.password, form.password.data):
             login_user(user, remember=form.remember.data)
             next_page = request.args.get('next')
-            return redirect(next_page) if next_page else redirect(url_for('student_home'))
+            return redirect(next_page) if next_page else redirect(url_for('home'))
         else:
             flash('Login Unsuccessful. Please check email and password', 'danger')
-    return render_template('student_login.html', title='Student Login', form=form)
-
-@app.route('/lecturer_register', methods=['GET', 'POST']) 
-def lecturer_register():
-    form = LecturerRegistrationForm()
-    if form.validate_on_submit():
-        lecturer_hashed_password = bcrypt.generate_password_hash(form.lecturer_password.data).decode('utf-8')
-        lecturer = Lecturer(lecturer_name=form.lecturer_name.data, lecturer_email=form.lecturer_email.data, lecturer_password=lecturer_hashed_password)
-        lecturer.role.append(Role(role='lecturer'))
-        db.session.add(lecturer)
-        db.session.commit()
-        flash('Your account has been created! You are now able to log in', 'success')
-        return redirect(url_for('lecturer_login'))
-    return render_template('lecturer_register.html', title='Lecturer Register', form=form)
-
-    
-#@app.route('/lecturer_login', methods=['GET', 'POST']) 
-#def lecturer_login():
-#    form = LecturerLoginForm()
-#    if form.validate_on_submit():
-#        lecturer = Lecturer.query.filter_by(lecturer_email=form.lecturer_email.data).first()
-#        if lecturer and bcrypt.check_password_hash(lecturer.lecturer_password, form.lecturer_password.data):
-#            login_user(lecturer, remember=form.remember.data)
-#            next_page = request.args.get('next')
-#            return redirect(next_page) if next_page else redirect(url_for('lecturer_home'))
-#        else:
-#            flash('Login Unsuccessful. Please check email and password', 'danger')
-#    return render_template('lecturer_login.html', title='Lecturer Login', form=form)
+    return render_template('login.html', title='Login', form=form)
 
 @app.route('/logout')
 def logout():
