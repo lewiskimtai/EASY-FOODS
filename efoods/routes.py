@@ -11,27 +11,6 @@ from flask_mail import Message
 
 
 @app.route('/')
-@app.route('/register', methods=['GET', 'POST'])
-def register():
-    if current_user.is_authenticated:
-        return redirect(url_for('home'))
-    form = UserRegistrationForm()
-    if form.validate_on_submit():
-        hashed_password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
-        if not User.query.filter(User.user_email=='lewis.kimtai@gmail.com').first():
-            user1 = User(user_name='Lewis', user_email='lewis.kimtai.com', password=hashed_password)
-            user1.roles.append(Role(role_name='admin'))
-            db.session.add(user1)
-            db.session.commit()
-        else:
-            user = User(user_name=form.user_name.data, user_email=form.user_email.data, password=hashed_password)
-            user.role.append(Role(role='customer'))
-            db.session.add(user)
-            db.session.commit()
-            flash('Your account has been created! You are now able to log in', 'success')
-        return redirect(url_for('login'))
-    return render_template('register.html', title='Registration', form=form)
-
 @app.route('/login', methods=['GET', 'POST']) 
 def login():
     if current_user.is_authenticated:
@@ -47,16 +26,60 @@ def login():
             flash('Login Unsuccessful. Please check email and password', 'danger')
     return render_template('login.html', title='Login', form=form)
 
+
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    if current_user.is_authenticated:
+        return redirect(url_for('home'))
+    form = UserRegistrationForm()
+    if form.validate_on_submit():
+        hashed_password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
+        if not User.query.filter_by(User.user_email=='lewis.kimtai@gmail.com').first():
+            user1 = User(user_name='Lewis', user_email='lewis.kimtai.com', password=hashed_password)
+            user1.roles.append(Role(role_name='admin'))
+            db.session.add(user1)
+            db.session.commit()
+        return redirect(url_for('admin')
+        else:
+            user = User(user_name=form.user_name.data, user_email=form.user_email.data, password=hashed_password)
+            user.role.append(Role(role='customer'))
+            db.session.add(user)
+            db.session.commit()
+            flash('Your account has been created! You are now able to log in', 'success')
+        return redirect(url_for('login'))
+    return render_template('register.html', title='Registration', form=form)
+
+
 @app.route('/logout')
 def logout():
     logout_user()
     return redirect(url_for('index'))
 
+@app.route('/admin', methods=['GET', 'POST'])
+@roles_required('admin')
+def admin():
+    restaurant = RestaurantRegistrationForm()
+    food = FoodRegistrationForm()
+    if restaurant.validate_on_submit():
+        rest = Restaurant(rest_name=restaurant.rest_name.data, tel_number=restaurant.tel_number.data)
+        db.session.add(rest)
+        db.session.commit()
+        flash('You have created a Restaurant')
+    return redirect(url_for('admin'))
+        if food.validate_on_submit():
+            food = Food(food_name=food.food_name.data, price=food.price.data)
+            db.session.add(food)
+            db.session.commit()
+            flash('You have successfully created a meal')
+        return redirect(url_for('admin'))
+        restaurants = Restaurant.query.filter_by(Restaurant.admin==)
+    return render_template('admin.html', title='Admin', restaurant=restaurant, food=food)
 
-@app.route('/student_home', methods=['GET', 'POST'])
-@roles_required('student')
-def student_home():
-    return render_template('student_home.html')
+@app.route('/home', methods=['GET', 'POST'])
+@roles_required('customer')
+def home():
+    
+    return render_template('home.html')
   
         
    
