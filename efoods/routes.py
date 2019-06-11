@@ -72,8 +72,9 @@ def admin():
             db.session.commit()
             flash('You have successfully created a meal')
         return redirect(url_for('admin'))
-        restaurants = Restaurant.query.filter_by(Restaurant.admin==)
-    return render_template('admin.html', title='Admin', restaurant=restaurant, food=food)
+        restaurants = Restaurant.query.join(User).join(Admin).filter_by(User.c.user_email == 'lewis.kimtai@gmail.com').all()
+        foods = Food.query.join(Restaurant).join(Admin).join(User).filter_by(User.c.user_email == 'lewis.kimtai@gmail.com').all()
+    return render_template('admin.html', title='Admin', restaurant=restaurant, food=food, restaurants=restaurants, foods=foods)
 
 @app.route('/home', methods=['GET', 'POST'])
 @roles_required('customer')
