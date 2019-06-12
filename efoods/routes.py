@@ -2,7 +2,7 @@ import os
 import secrets
 from flask import render_template, url_for, flash, redirect, request
 from efoods import app, db, bcrypt
-from efoods.forms import UserRegistrationForm, LoginForm, RestaurantRegistrationForm, FoodRegistrationForm
+from efoods.forms import UserRegistrationForm, LoginForm, RestaurantRegistrationForm, FoodRegistrationForm, OrderForm
 from efoods.models import User, Restaurant, Food, Orders, Admin, Role
 from flask_login import login_user, current_user, logout_user, login_required
 from flask_user import roles_required
@@ -39,7 +39,7 @@ def register():
             user1.roles.append(Role(role_name='admin'))
             db.session.add(user1)
             db.session.commit()
-        return redirect(url_for('admin')
+            flash
         else:
             user = User(user_name=form.user_name.data, user_email=form.user_email.data, password=hashed_password)
             user.role.append(Role(role='customer'))
@@ -60,88 +60,44 @@ def logout():
 def admin():
     restaurant = RestaurantRegistrationForm()
     food = FoodRegistrationForm()
+    restaurants = Restaurant.query.join(User).join(Admin).join(Role).filter_by(Role.c.role_name == 'admin' and Restaurant.c.rest_name == 'rest_name').all()
+    foods = Food.query.join(Restaurant).join(Food).join(Admin).join(User).join(Role).filter_by(Role.c.role_name == 'admin'and Restaurant.c.rest_name == 'rest_name' and Food.c.food_name == 'food_name' and Food.c.price == 'price').all()
+    orders = Orders.query.join(Food).join(Restaurant).join(User).join(Admin).join(Role).filter_by(Role.c.role_name == 'admin' and Food.c.food_name == 'food_name' and Food.c.price == 'price' and Orders.c.drop == 'drop' and Restaurant.c.rest_name == 'rest_name').all()
     if restaurant.validate_on_submit():
-        rest = Restaurant(rest_name=restaurant.rest_name.data, tel_number=restaurant.tel_number.data)
+        rest = Restaurant(rest_name = restaurant.rest_name.data, tel_number = restaurant.tel_number.data)
         db.session.add(rest)
         db.session.commit()
         flash('You have created a Restaurant')
-    return redirect(url_for('admin'))
-        if food.validate_on_submit():
-            food = Food(food_name=food.food_name.data, price=food.price.data)
-            db.session.add(food)
-            db.session.commit()
-            flash('You have successfully created a meal')
         return redirect(url_for('admin'))
-        restaurants = Restaurant.query.join(User).join(Admin).filter_by(User.c.user_email == 'lewis.kimtai@gmail.com').all()
-        foods = Food.query.join(Restaurant).join(Admin).join(User).filter_by(User.c.user_email == 'lewis.kimtai@gmail.com').all()
-    return render_template('admin.html', title='Admin', restaurant=restaurant, food=food, restaurants=restaurants, foods=foods)
+    else:
+        food.validate_on_submit()
+        food = Food(food_name=food.food_name.data, price=food.price.data)
+        db.session.add(food)
+        db.session.commit()
+        flash('You have successfully created a meal')
+        return redirect(url_for('admin'))
+    return render_template('admin.html', title='Admin', restaurant=restaurant, food=food, restaurants=restaurants, foods=foods, orders=orders)
+
 
 @app.route('/home', methods=['GET', 'POST'])
 @roles_required('customer')
 def home():
-    
-    return render_template('home.html')
+    rest = RestaurantRegistrationForm()
+    food = FoodRegistrationForm()
+    restaurants = Restaurant.query.filter_by(restaurant_id = 'Restaurant.id').all()
+    foods = Food.query.join(Restaurant).filter_by(Restaurant.c.restaurant_id == 'Restaurant.id', Food.c.food_name == 'food_name', Food.c.price == 'price').all()
+    return render_template('home.html', restaurants=restaurants, foods=foods)
+
+@app.route('/order', methods=['GET', 'POST'])
+@roles_required('customer')
+def order():
+    order = OrderForm()
+    if order.validate_on_submit():
+        order = Orders(drop = order.order.data)
+        db.session.add(order)
+        db.session.commit()
+        flash('You have ordered a meal')
+    return render_template('home.html', order=order)
+
+
   
-        
-   
-
-@app.route('/student_account', methods=['GET', 'POST'])
-@login_required
-def student_account():
-    return render_template('index.html')
-
-@app.route('/lecture_account', methods=['GET', 'POST'])
-@login_required
-def lecturer_account():
-    return render_template('index.html')
-
-
-@app.route('/lecturer_home')
-@roles_required('lecturer')
-def lecturer_home():
-    return render_template('lecturer_home.html')
-    
-@app.route('/classmates')
-@login_required
-def classmates():
-    return render_template('classmates.html')
-
-@app.route('/lecturers')
-def lecturers():
-    return render_template('lecturers.html')
-
-@app.route('/courseunits') 
-def courseunits():
-    return render_template('courseunits.html')
-
-@app.route('/timetable') 
-def timetable():
-    return render_template('timetable.html')
-
-@app.route('/notes') 
-def notes():
-    return render_template('notes.html')
-
-@app.route('/tutorials') 
-def tutorials():
-    return render_template('tutorials.html')
-
-@app.route('/discussions') 
-def discussions():
-    return render_template('discussions.html')
-
-@app.route('/courseworks') 
-def courseworks():
-    return render_template('courseworks.html')
-
-@app.route('/tests') 
-def tests():
-    return render_template('tests.html')
-
-@app.route('/exams') 
-def exams():
-    return render_template('exams.html')
-
-@app.route('/results') 
-def results():
-    return render_template('results.html')

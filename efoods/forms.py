@@ -22,7 +22,7 @@ class LoginForm(FlaskForm):
     submit = SubmitField('Login')
 
 class RestaurantRegistrationForm(FlaskForm):
-    restaurant_name = StringField('Restaurant_Name', validators=[Required(), Length(min=2, max=20)])
+    rest_name = StringField('Restaurant_Name', validators=[Required(), Length(min=2, max=20)])
     tel_number = IntegerField('Telephone_Number', validators=[Required(), Length(max=10)])
     submit = SubmitField('Create Restaurant')
 
@@ -35,5 +35,9 @@ class FoodRegistrationForm(FlaskForm):
     food_name = StringField('Food_Name', validators=[Required(), Length(min=2, max=20)])
     price = IntegerField('Price', validators=[Required(), Length(max=10)])
     submit = SubmitField('Create Food')
+
+class OrderForm(FlaskForm):
+    drop = StringField('Drop', validators=[Required()])
+    submit = SubmitField('ORDER')
 
 
