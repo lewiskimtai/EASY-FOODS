@@ -11,7 +11,7 @@ class User(db.Model, UserMixin):
     user_email = db.Column(db.String(120), unique=True, nullable=False)
     password = db.Column(db.String(60), nullable=False)
     role = db.relationship('Role', backref='admin', lazy='dynamic')
-    
+    order = db.relationship('Order', backref='user', lazy='dynamic')
 
     def __repr__(self):
         return f"User('{self.user_name}', '{self.user_email}')"
@@ -22,7 +22,6 @@ class Restaurant(db.Model, UserMixin):
     tel_number = db.Column(db.Integer, unique=True, nullable=False)
     food_id = db.Column(db.Integer, db.ForeignKey('food.id'))
     admin = db.relationship('Admin', backref='restaurant', lazy='dynamic')
-   
 
     def __repr__(self):
         return f"User('{self.rest_name}', '{self.tel_number}')"
@@ -36,8 +35,9 @@ class Food(db.Model, UserMixin):
     def __repr__(self):
         return f"User('{self.food_name}', '{self.price}')"
 
-    
-    
+class Orders(db.Model, UserMixin):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
 
     def __repr__(self):
         return f"User('{self.name}', '{self.email}')"
@@ -51,12 +51,11 @@ class Role(db.Model, UserMixin):
 
 class Admin(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
-    role_id = db.Column(db.Integer, db.ForeignKey('Role.id'))
-    user_id = db.Column(db.Integer, db.ForeignKey('User.id'))
-    restaurant_id = db.Column(db.Integer, db.ForeignKey('Restaurant.id'))
+    role_id = db.Column(db.Integer, db.ForeignKey('role.id'))
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    restaurant_id = db.Column(db.Integer, db.ForeignKey('restaurant.id'))
     user = db.relationship('User', backref='admin', lazy='dynamic')
     role = db.relationship('Role', backref='admin', lazy='dynamic')
-    order = db.relationship('Orders', backref='food', lazy='dynamic')
     
     def __repr__(self):
         return f"User('{self.name}', '{self.email}')"
